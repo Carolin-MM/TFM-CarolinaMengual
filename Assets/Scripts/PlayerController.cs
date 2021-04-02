@@ -6,12 +6,15 @@ public class PlayerController : MonoBehaviour
 {
     public GameObject arma;
     public LineRenderer lineRenderer;
-    public bool posicionFijada = false;
+    public Material liniaFuera, liniaDentro;
+    public GameController.EstadoPersonaje estado = GameController.EstadoPersonaje.Parado;
+    public int area;
 
     private Animator _animator;
     private NavMeshAgent _navMeshAgent;
     private Vector3 _otherPoint, _lastPosition;
     private float _speed;
+    private GameController _controller;
 
     public void Aim()
     {
@@ -23,6 +26,7 @@ public class PlayerController : MonoBehaviour
         _animator = GetComponent<Animator>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _lastPosition = transform.position;
+        _controller = GameObject.Find("Controller").GetComponent<GameController>();
     }
 
     private void Update()
@@ -32,38 +36,76 @@ public class PlayerController : MonoBehaviour
         _lastPosition = pos;
         _animator.SetFloat("Velocity", _speed);
 
-        if (!posicionFijada)
+        switch (estado)
         {
-            var camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (!Physics.Raycast(camRay, out var hit, Mathf.Infinity, LayerMask.GetMask("Suelo"))) return;
-            
-            var middlePoint = pos;
-            if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
-            {
-                middlePoint.x = CalculateCoord(hit.point.x);
-                middlePoint.z = CalculateCoord(middlePoint.z);
-            }
-            else
-            {
-                middlePoint.x = CalculateCoord(middlePoint.x);
-                middlePoint.z = CalculateCoord(hit.point.z);
-            }
+            case GameController.EstadoPersonaje.Parado:
+                _controller.MarcarArea(area, transform.position);
+                estado = GameController.EstadoPersonaje.Escogiendo;
+                break;
 
-            var hitPoint = new Vector3(CalculateCoord(hit.point.x), pos.y, CalculateCoord(hit.point.z));
+            case GameController.EstadoPersonaje.Escogiendo:
+                var camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (!Physics.Raycast(camRay, out var hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
+                    return;
 
-            lineRenderer.SetPosition(0, pos);
-            lineRenderer.SetPosition(1, middlePoint);
-            lineRenderer.SetPosition(2, hitPoint);
+                Vector3 middlePoint;
+                if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
+                {
+                    middlePoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                        _controller.CalculateCoord(pos.z, 'z'));
+                }
+                else
+                {
+                    middlePoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                        _controller.CalculateCoord(hit.point.z, 'z'));
+                }
 
-            if (!Input.GetMouseButtonDown(0)) return;
-            _navMeshAgent.SetDestination(middlePoint);
-            _otherPoint = hitPoint;
-            posicionFijada = true;
-        }
-        else if (_otherPoint != Vector3.zero)
-        {
-            if (!_navMeshAgent.pathPending && _navMeshAgent.remainingDistance < 0.5f)
-                GoToOtherPoint();
+                var finalPoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                    _controller.CalculateCoord(hit.point.z, 'z'));
+
+                var initialPoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                    _controller.CalculateCoord(pos.z, 'z'));
+
+                lineRenderer.SetPosition(0, initialPoint);
+                lineRenderer.SetPosition(1, middlePoint);
+                lineRenderer.SetPosition(2, finalPoint);
+
+                if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <= area * 2)
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        _navMeshAgent.SetDestination(middlePoint);
+                        _otherPoint = finalPoint;
+                        estado = GameController.EstadoPersonaje.Moviendo1;
+                    }
+                    lineRenderer.material = liniaDentro;
+                }
+                else lineRenderer.material = liniaFuera;
+                break;
+
+            case GameController.EstadoPersonaje.Moviendo1:
+                if (!_navMeshAgent.pathPending && _navMeshAgent.remainingDistance < 0.5f)
+                {
+                    estado = GameController.EstadoPersonaje.Moviendo2;
+                    GoToOtherPoint();
+                }
+
+                break;
+
+            case GameController.EstadoPersonaje.Moviendo2:
+                if (!_navMeshAgent.pathPending && _navMeshAgent.remainingDistance < 0.5f)
+                {
+                    lineRenderer.SetPosition(0, Vector3.zero);
+                    lineRenderer.SetPosition(1, Vector3.zero);
+                    lineRenderer.SetPosition(2, Vector3.zero);
+                    _controller.LimpiarArea();
+                    estado = GameController.EstadoPersonaje.Atacando;
+                }
+
+                break;
+
+            case GameController.EstadoPersonaje.Atacando:
+                break;
         }
     }
 
@@ -71,14 +113,5 @@ public class PlayerController : MonoBehaviour
     {
         _navMeshAgent.SetDestination(_otherPoint);
         _otherPoint = Vector3.zero;
-    }
-
-    private static float CalculateCoord(float realCoord)
-    {
-        const int factor = 2;
-        
-        var coord = realCoord / factor;
-        coord = (float) Math.Round(coord);
-        return coord * factor;
     }
 }
