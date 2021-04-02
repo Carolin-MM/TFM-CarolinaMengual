@@ -5,7 +5,7 @@ public class GameController : MonoBehaviour
 {
     public GameObject cuadricula;
     public Transform areaParent;
-    public GameObject prefabCuadroArea;
+    public GameObject prefabCuadroArea, prefabCuadroAreaAtaque;
 
     private Vector3[] _verticesCuadricula;
 
@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
         Escogiendo,
         Moviendo1,
         Moviendo2,
+        EscogiendoAtaque,
         Atacando
     };
 
@@ -70,7 +71,7 @@ public class GameController : MonoBehaviour
                positio.z < _verticesCuadricula[0].z && positio.z > _verticesCuadricula[2].z;
     }
 
-    public void MarcarArea(int area, Vector3 pnjPosition)
+    public void MarcarAreaMovimiento(int area, Vector3 pnjPosition)
     {
         pnjPosition.y = 0.25f;
 
@@ -90,5 +91,24 @@ public class GameController : MonoBehaviour
     public void LimpiarArea()
     {
         foreach (Transform child in areaParent) Destroy(child.gameObject);
+    }
+
+    public void MarcarAreaAtaque(int area, int inicioArea, Vector3 pnjPosition)
+    {
+        pnjPosition.y = 0.25f;
+
+        for (var i = -area; i <= area; i++)
+        {
+            var extrem = area - Math.Abs(i);
+
+            for (var j = -extrem; j <= extrem; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                
+                var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
+
+                if (DentroArea(pos)) Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
+            }
+        }
     }
 }

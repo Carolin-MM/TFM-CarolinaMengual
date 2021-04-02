@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public LineRenderer lineRenderer;
     public Material liniaFuera, liniaDentro;
     public GameController.EstadoPersonaje estado = GameController.EstadoPersonaje.Parado;
-    public int area;
+    public int areaMovimiento, areaAtaque;
 
     private Animator _animator;
     private NavMeshAgent _navMeshAgent;
@@ -36,19 +36,22 @@ public class PlayerController : MonoBehaviour
         _lastPosition = pos;
         _animator.SetFloat("Velocity", _speed);
 
+        Ray camRay;
+        RaycastHit hit;
+        Vector3 initialPoint, middlePoint, finalPoint;
+
         switch (estado)
         {
             case GameController.EstadoPersonaje.Parado:
-                _controller.MarcarArea(area, transform.position);
+                _controller.MarcarAreaMovimiento(areaMovimiento, GetPositon());
                 estado = GameController.EstadoPersonaje.Escogiendo;
                 break;
 
             case GameController.EstadoPersonaje.Escogiendo:
-                var camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (!Physics.Raycast(camRay, out var hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
+                camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (!Physics.Raycast(camRay, out hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
                     return;
 
-                Vector3 middlePoint;
                 if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
                 {
                     middlePoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
@@ -60,17 +63,18 @@ public class PlayerController : MonoBehaviour
                         _controller.CalculateCoord(hit.point.z, 'z'));
                 }
 
-                var finalPoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                finalPoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
                     _controller.CalculateCoord(hit.point.z, 'z'));
 
-                var initialPoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                initialPoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
                     _controller.CalculateCoord(pos.z, 'z'));
 
                 lineRenderer.SetPosition(0, initialPoint);
                 lineRenderer.SetPosition(1, middlePoint);
                 lineRenderer.SetPosition(2, finalPoint);
 
-                if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <= area * 2)
+                if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
+                    areaMovimiento * 2)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -78,9 +82,11 @@ public class PlayerController : MonoBehaviour
                         _otherPoint = finalPoint;
                         estado = GameController.EstadoPersonaje.Moviendo1;
                     }
+
                     lineRenderer.material = liniaDentro;
                 }
                 else lineRenderer.material = liniaFuera;
+
                 break;
 
             case GameController.EstadoPersonaje.Moviendo1:
@@ -99,8 +105,55 @@ public class PlayerController : MonoBehaviour
                     lineRenderer.SetPosition(1, Vector3.zero);
                     lineRenderer.SetPosition(2, Vector3.zero);
                     _controller.LimpiarArea();
-                    estado = GameController.EstadoPersonaje.Atacando;
+                    _controller.MarcarAreaAtaque(1, 0, GetPositon());
+                    estado = GameController.EstadoPersonaje.EscogiendoAtaque;
                 }
+
+                break;
+
+            case GameController.EstadoPersonaje.EscogiendoAtaque:
+                camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (!Physics.Raycast(camRay, out hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
+                    return;
+
+                if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
+                {
+                    middlePoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                        _controller.CalculateCoord(pos.z, 'z'));
+                }
+                else
+                {
+                    middlePoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                        _controller.CalculateCoord(hit.point.z, 'z'));
+                }
+
+                finalPoint = new Vector3(_controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                    _controller.CalculateCoord(hit.point.z, 'z'));
+
+                initialPoint = new Vector3(_controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                    _controller.CalculateCoord(pos.z, 'z'));
+
+                lineRenderer.SetPosition(0, initialPoint);
+                lineRenderer.SetPosition(1, middlePoint);
+                lineRenderer.SetPosition(2, finalPoint);
+
+                if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
+                    areaAtaque * 2)
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        transform.LookAt(finalPoint);
+                        lineRenderer.SetPosition(0, Vector3.zero);
+                        lineRenderer.SetPosition(1, Vector3.zero);
+                        lineRenderer.SetPosition(2, Vector3.zero);
+                        _controller.LimpiarArea();
+                        estado = GameController.EstadoPersonaje.Atacando;
+                        _animator.SetTrigger("Aim");
+                    }
+
+                    lineRenderer.material = liniaDentro;
+                }
+                else lineRenderer.material = liniaFuera;
 
                 break;
 
@@ -113,5 +166,13 @@ public class PlayerController : MonoBehaviour
     {
         _navMeshAgent.SetDestination(_otherPoint);
         _otherPoint = Vector3.zero;
+    }
+
+    public Vector3 GetPositon()
+    {
+        var position = transform.position;
+
+        return new Vector3(_controller.CalculateCoord(position.x, 'x'), 0.25f,
+            _controller.CalculateCoord(position.z, 'z'));
     }
 }
