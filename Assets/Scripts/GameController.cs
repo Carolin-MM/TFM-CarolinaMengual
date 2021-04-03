@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -6,6 +7,7 @@ public class GameController : MonoBehaviour
     public GameObject cuadricula;
     public Transform areaParent;
     public GameObject prefabCuadroArea, prefabCuadroAreaAtaque;
+    public PnjController[] aliados, enemigos;
 
     private Vector3[] _verticesCuadricula;
 
@@ -16,7 +18,17 @@ public class GameController : MonoBehaviour
         Moviendo1,
         Moviendo2,
         EscogiendoAtaque,
-        Atacando
+        Atacando,
+        Muerto
+    };
+
+    public enum Tipo
+    {
+        Jefe,
+        Medico,
+        Distancia,
+        Defensa,
+        Velocista
     };
 
     private void Start()
@@ -65,10 +77,10 @@ public class GameController : MonoBehaviour
         return coord;
     }
 
-    private bool DentroArea(Vector3 positio)
+    private bool DentroArea(Vector3 position)
     {
-        return positio.x < _verticesCuadricula[0].x && positio.x > _verticesCuadricula[1].x &&
-               positio.z < _verticesCuadricula[0].z && positio.z > _verticesCuadricula[2].z;
+        return position.x < _verticesCuadricula[0].x && position.x > _verticesCuadricula[1].x &&
+               position.z < _verticesCuadricula[0].z && position.z > _verticesCuadricula[2].z;
     }
 
     public void MarcarAreaMovimiento(int area, Vector3 pnjPosition)
@@ -110,5 +122,23 @@ public class GameController : MonoBehaviour
                 if (DentroArea(pos)) Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
             }
         }
+    }
+
+    public bool PosibleAtaque(PnjController controller, Vector3 position)
+    {
+        var entities = controller is PlayerController ? enemigos : aliados;
+
+        foreach (var pnj in entities)
+        {
+            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+
+            if (pnj.GetPositon() == position)
+            {
+                controller.siguienteAtaque = pnj;
+                return true;
+            }
+        }
+
+        return false;
     }
 }
