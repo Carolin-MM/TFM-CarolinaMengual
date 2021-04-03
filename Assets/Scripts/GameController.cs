@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,6 +11,9 @@ public class GameController : MonoBehaviour
     public PnjController[] aliados, enemigos;
 
     private Vector3[] _verticesCuadricula;
+    private int _numAliados, _numEnemigos;
+    private List<PnjController> _todos;
+    private int _indexTurno = -1;
 
     public enum EstadoPersonaje
     {
@@ -43,8 +47,17 @@ public class GameController : MonoBehaviour
             trans.TransformPoint(verticeList[110]),
             trans.TransformPoint(verticeList[120])
         };
+
+        _numAliados = aliados.Length;
+        _numEnemigos = enemigos.Length;
+
+        _todos = new List<PnjController>();
+        _todos.AddRange(aliados);
+        _todos.AddRange(enemigos);
+
+        SiguienteTurno();
     }
-    
+
     public float CalculateCoord(float realCoord, char axis)
     {
         const int factor = 2;
@@ -77,13 +90,13 @@ public class GameController : MonoBehaviour
         return coord;
     }
 
-    private bool DentroArea(Vector3 position)
+    public bool DentroArea(Vector3 position)
     {
         return position.x < _verticesCuadricula[0].x && position.x > _verticesCuadricula[1].x &&
                position.z < _verticesCuadricula[0].z && position.z > _verticesCuadricula[2].z;
     }
 
-    public void MarcarAreaMovimiento(int area, Vector3 pnjPosition)
+    private void MarcarAreaMovimiento(int area, Vector3 pnjPosition)
     {
         pnjPosition.y = 0.25f;
 
@@ -116,7 +129,7 @@ public class GameController : MonoBehaviour
             for (var j = -extrem; j <= extrem; j++)
             {
                 if (i == 0 && j == 0) continue;
-                
+
                 var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
                 if (DentroArea(pos)) Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
@@ -130,15 +143,60 @@ public class GameController : MonoBehaviour
 
         foreach (var pnj in entities)
         {
-            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+            if (pnj.estado == EstadoPersonaje.Muerto || pnj.GetPositon() != position) continue;
 
-            if (pnj.GetPositon() == position)
-            {
-                controller.siguienteAtaque = pnj;
-                return true;
-            }
+            controller.siguienteAtaque = pnj;
+            return true;
         }
 
         return false;
+    }
+
+    public void Muerte(PnjController pnjController)
+    {
+        if (pnjController is PlayerController) _numAliados--;
+        else _numEnemigos--;
+
+        if (_numAliados == 0 || _numEnemigos == 0) ; //final del juego
+    }
+
+    public void SiguienteTurno()
+    {
+        var siguiente = false;
+
+        do
+        {
+            _indexTurno++;
+            _indexTurno %= _todos.Count;
+
+            var pnj = _todos[_indexTurno];
+            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+
+            if (pnj is PlayerController)
+                MarcarAreaMovimiento(pnj.areaMovimiento, pnj.GetPositon());
+            
+            pnj.estado = EstadoPersonaje.Escogiendo;
+            siguiente = true;
+        } while (!siguiente);
+    }
+
+    public PnjController ContrarioCercano(PnjController controller)
+    {
+        var entities = controller is PlayerController ? enemigos : aliados;
+        var position = controller.GetPositon();
+        var distance = float.PositiveInfinity;
+        PnjController aux = null;
+
+        foreach (var pnj in entities)
+        {
+            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+
+            var dis = Vector3.Distance(pnj.GetPositon(), position);
+            if (dis > distance) continue;
+            distance = dis;
+            aux = pnj;
+        }
+
+        return aux;
     }
 }

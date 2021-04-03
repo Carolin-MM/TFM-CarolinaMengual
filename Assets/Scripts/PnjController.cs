@@ -29,6 +29,7 @@ public abstract class PnjController : MonoBehaviour
     public void EndAtack()
     {
         estado = GameController.EstadoPersonaje.Parado;
+        Controller.SiguienteTurno();
     }
 
     public void StartAtack()
@@ -76,6 +77,7 @@ public abstract class PnjController : MonoBehaviour
             Animator.SetBool("Die", true);
             backgrounVida.SetActive(false);
             estado = GameController.EstadoPersonaje.Muerto;
+            Controller.Muerte(this);
         }
         else
         {

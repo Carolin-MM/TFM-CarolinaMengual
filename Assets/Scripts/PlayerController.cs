@@ -17,11 +17,6 @@ public class PlayerController : PnjController
 
         switch (estado)
         {
-            case GameController.EstadoPersonaje.Parado:
-                Controller.MarcarAreaMovimiento(areaMovimiento, GetPositon());
-                estado = GameController.EstadoPersonaje.Escogiendo;
-                break;
-
             case GameController.EstadoPersonaje.Escogiendo:
                 camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (!Physics.Raycast(camRay, out hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
@@ -113,26 +108,28 @@ public class PlayerController : PnjController
                 lineRenderer.SetPosition(2, finalPoint);
 
                 if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
-                    areaAtaque * 2 && Controller.PosibleAtaque(this, finalPoint))
+                    areaAtaque * 2 && (Controller.PosibleAtaque(this, finalPoint) || finalPoint == initialPoint))
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
-                        transform.LookAt(finalPoint);
                         lineRenderer.SetPosition(0, Vector3.zero);
                         lineRenderer.SetPosition(1, Vector3.zero);
                         lineRenderer.SetPosition(2, Vector3.zero);
                         Controller.LimpiarArea();
-                        estado = GameController.EstadoPersonaje.Atacando;
-                        Animator.SetTrigger("Aim");
+
+                        if (finalPoint == initialPoint) EndAtack();
+                        else
+                        {
+                            estado = GameController.EstadoPersonaje.Atacando;
+                            transform.LookAt(finalPoint);
+                            Animator.SetTrigger("Aim");
+                        }
                     }
 
                     lineRenderer.material = liniaDentro;
                 }
                 else lineRenderer.material = liniaFuera;
 
-                break;
-
-            case GameController.EstadoPersonaje.Atacando:
                 break;
         }
     }
