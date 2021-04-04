@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     public Transform areaParent;
     public GameObject prefabCuadroArea, prefabCuadroAreaAtaque;
     public PnjController[] aliados, enemigos;
+    public MenuController menuController;
 
     private Vector3[] _verticesCuadricula;
     private int _numAliados, _numEnemigos;
@@ -157,7 +158,8 @@ public class GameController : MonoBehaviour
         if (pnjController is PlayerController) _numAliados--;
         else _numEnemigos--;
 
-        if (_numAliados == 0 || _numEnemigos == 0) ; //final del juego
+        if (_numAliados == 0) menuController.FinalPartida("Enemigo");
+        else if (_numEnemigos == 0) menuController.FinalPartida("Jugador");
     }
 
     public void SiguienteTurno()
