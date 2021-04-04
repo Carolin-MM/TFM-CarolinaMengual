@@ -44,7 +44,7 @@ public class PlayerController : PnjController
                 lineRenderer.SetPosition(2, finalPoint);
 
                 if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
-                    areaMovimiento * 2)
+                    areaMovimiento * 2 && Controller.PosibleMovimiento(this, finalPoint))
                 {
                     if (Input.GetMouseButtonDown(0))
                     {

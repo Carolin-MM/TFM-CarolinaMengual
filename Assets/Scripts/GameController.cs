@@ -97,8 +97,9 @@ public class GameController : MonoBehaviour
                position.z < _verticesCuadricula[0].z && position.z > _verticesCuadricula[2].z;
     }
 
-    private void MarcarAreaMovimiento(int area, Vector3 pnjPosition)
+    private void MarcarAreaMovimiento(int area, PnjController controller)
     {
+        var pnjPosition = controller.GetPositon();
         pnjPosition.y = 0.25f;
 
         for (var i = -area; i <= area; i++)
@@ -109,9 +110,16 @@ public class GameController : MonoBehaviour
             {
                 var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
-                if (DentroArea(pos)) Instantiate(prefabCuadroArea, pos, Quaternion.identity, areaParent);
+                if (DentroArea(pos) && PosibleMovimiento(controller, pos))
+                    Instantiate(prefabCuadroArea, pos, Quaternion.identity, areaParent);
             }
         }
+    }
+
+    public bool PosibleMovimiento(PnjController controller, Vector3 position)
+    {
+        return _todos.Where(pnj => pnj.estado != EstadoPersonaje.Muerto && pnj != controller)
+            .All(pnj => pnj.GetPositon() != position);
     }
 
     public void LimpiarArea()
@@ -133,7 +141,8 @@ public class GameController : MonoBehaviour
 
                 var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
-                if (DentroArea(pos)) Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
+                if (DentroArea(pos))
+                    Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
             }
         }
     }
@@ -175,7 +184,7 @@ public class GameController : MonoBehaviour
             if (pnj.estado == EstadoPersonaje.Muerto) continue;
 
             if (pnj is PlayerController)
-                MarcarAreaMovimiento(pnj.areaMovimiento, pnj.GetPositon());
+                MarcarAreaMovimiento(pnj.areaMovimiento, pnj);
             
             pnj.estado = EstadoPersonaje.Escogiendo;
             siguiente = true;
