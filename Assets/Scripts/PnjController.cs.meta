@@ -3,7 +3,13 @@ guid: cf914e10036e9e146b824abf4b5c37b3
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - arma: {instanceID: 0}
+  - indicadorVida: {instanceID: 0}
+  - backgrounVida: {instanceID: 0}
+  - siguienteAtaque: {instanceID: 0}
+  - controller: {instanceID: 0}
+  - prefabParticulas: {fileID: 100008, guid: c315731710b634ac1907e6aceca06447, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

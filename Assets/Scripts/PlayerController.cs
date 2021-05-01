@@ -24,32 +24,32 @@ public class PlayerController : PnjController
 
                 if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
                 {
-                    middlePoint = new Vector3(Controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
-                        Controller.CalculateCoord(pos.z, 'z'));
+                    middlePoint = new Vector3(controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                        controller.CalculateCoord(pos.z, 'z'));
                 }
                 else
                 {
-                    middlePoint = new Vector3(Controller.CalculateCoord(pos.x, 'x'), 0.25f,
-                        Controller.CalculateCoord(hit.point.z, 'z'));
+                    middlePoint = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                        controller.CalculateCoord(hit.point.z, 'z'));
                 }
 
-                finalPoint = new Vector3(Controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
-                    Controller.CalculateCoord(hit.point.z, 'z'));
+                finalPoint = new Vector3(controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                    controller.CalculateCoord(hit.point.z, 'z'));
 
-                initialPoint = new Vector3(Controller.CalculateCoord(pos.x, 'x'), 0.25f,
-                    Controller.CalculateCoord(pos.z, 'z'));
+                initialPoint = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                    controller.CalculateCoord(pos.z, 'z'));
 
                 lineRenderer.SetPosition(0, initialPoint);
                 lineRenderer.SetPosition(1, middlePoint);
                 lineRenderer.SetPosition(2, finalPoint);
 
                 if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
-                    areaMovimiento * 2 && Controller.PosibleMovimiento(this, finalPoint))
+                    areaMovimiento * 2 && controller.PosibleMovimiento(this, finalPoint))
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
-                        NavMeshAgent.SetDestination(middlePoint);
-                        OtherPoint = finalPoint;
+                        navMeshAgent.SetDestination(middlePoint);
+                        otherPoint = finalPoint;
                         estado = GameController.EstadoPersonaje.Moviendo1;
                     }
 
@@ -60,7 +60,7 @@ public class PlayerController : PnjController
                 break;
 
             case GameController.EstadoPersonaje.Moviendo1:
-                if (!NavMeshAgent.pathPending && NavMeshAgent.remainingDistance < 0.5f)
+                if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f)
                 {
                     estado = GameController.EstadoPersonaje.Moviendo2;
                     GoToOtherPoint();
@@ -69,60 +69,62 @@ public class PlayerController : PnjController
                 break;
 
             case GameController.EstadoPersonaje.Moviendo2:
-                if (!NavMeshAgent.pathPending && NavMeshAgent.remainingDistance < 0.5f)
+                if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f)
                 {
                     lineRenderer.SetPosition(0, Vector3.zero);
                     lineRenderer.SetPosition(1, Vector3.zero);
                     lineRenderer.SetPosition(2, Vector3.zero);
-                    Controller.LimpiarArea();
-                    Controller.MarcarAreaAtaque(1, 0, GetPositon());
-                    estado = GameController.EstadoPersonaje.EscogiendoAtaque;
+                    controller.LimpiarArea();
+                    controller.MarcarAreaAccion(areaAtaque, 0, GetPositon(), tipo != GameController.Tipo.Sanador);
+                    estado = GameController.EstadoPersonaje.EscogiendoAccion;
                 }
 
                 break;
 
-            case GameController.EstadoPersonaje.EscogiendoAtaque:
+            case GameController.EstadoPersonaje.EscogiendoAccion:
                 camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (!Physics.Raycast(camRay, out hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
                     return;
 
                 if (Math.Abs(hit.point.x - pos.x) > Math.Abs(hit.point.z - pos.z))
                 {
-                    middlePoint = new Vector3(Controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
-                        Controller.CalculateCoord(pos.z, 'z'));
+                    middlePoint = new Vector3(controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                        controller.CalculateCoord(pos.z, 'z'));
                 }
                 else
                 {
-                    middlePoint = new Vector3(Controller.CalculateCoord(pos.x, 'x'), 0.25f,
-                        Controller.CalculateCoord(hit.point.z, 'z'));
+                    middlePoint = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                        controller.CalculateCoord(hit.point.z, 'z'));
                 }
 
-                finalPoint = new Vector3(Controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
-                    Controller.CalculateCoord(hit.point.z, 'z'));
+                finalPoint = new Vector3(controller.CalculateCoord(hit.point.x, 'x'), 0.25f,
+                    controller.CalculateCoord(hit.point.z, 'z'));
 
-                initialPoint = new Vector3(Controller.CalculateCoord(pos.x, 'x'), 0.25f,
-                    Controller.CalculateCoord(pos.z, 'z'));
+                initialPoint = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                    controller.CalculateCoord(pos.z, 'z'));
 
                 lineRenderer.SetPosition(0, initialPoint);
                 lineRenderer.SetPosition(1, middlePoint);
                 lineRenderer.SetPosition(2, finalPoint);
 
                 if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
-                    areaAtaque * 2 && (Controller.PosibleAtaque(this, finalPoint) || finalPoint == initialPoint))
+                    areaAtaque * 2 &&
+                    (controller.PosibleAccion(this, finalPoint, tipo != GameController.Tipo.Sanador) ||
+                     finalPoint == initialPoint))
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
                         lineRenderer.SetPosition(0, Vector3.zero);
                         lineRenderer.SetPosition(1, Vector3.zero);
                         lineRenderer.SetPosition(2, Vector3.zero);
-                        Controller.LimpiarArea();
+                        controller.LimpiarArea();
 
                         if (finalPoint == initialPoint) EndAtack();
                         else
                         {
                             estado = GameController.EstadoPersonaje.Atacando;
                             transform.LookAt(finalPoint);
-                            Animator.SetTrigger("Aim");
+                            animator.SetTrigger("Aim");
                         }
                     }
 

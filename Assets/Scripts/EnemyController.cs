@@ -25,17 +25,17 @@ public class EnemyController : PnjController
 
                         var pos = initialPoint + new Vector3(i * 2, 0, j * 2);
 
-                        if (Controller.DentroArea(pos) && Controller.PosibleAtaque(this, pos))
+                        if (controller.DentroArea(pos) && controller.PosibleAccion(this, pos, tipo != GameController.Tipo.Sanador))
                         {
-                            NavMeshAgent.SetDestination(middlePoint);
-                            OtherPoint = finalPoint;
+                            navMeshAgent.SetDestination(middlePoint);
+                            otherPoint = finalPoint;
                             estado = GameController.EstadoPersonaje.Moviendo1;
                             return;
                         }
                     }
                 }
 
-                var contrario = Controller.ContrarioCercano(this);
+                var contrario = controller.ContrarioCercano(this);
                 var distance = float.PositiveInfinity;
                 var contrarioPosition = contrario.GetPositon();
 
@@ -49,13 +49,13 @@ public class EnemyController : PnjController
 
                         var pos = initialPoint + new Vector3(i * 2, 0, j * 2);
 
-                        if (Controller.DentroArea(pos))
+                        if (controller.DentroArea(pos))
                         {
-                            var middleAux = new Vector3(Controller.CalculateCoord(initialPoint.x, 'x'), 0.25f,
-                                Controller.CalculateCoord(pos.z, 'z'));
+                            var middleAux = new Vector3(controller.CalculateCoord(initialPoint.x, 'x'), 0.25f,
+                                controller.CalculateCoord(pos.z, 'z'));
 
-                            var finalAux = new Vector3(Controller.CalculateCoord(pos.x, 'x'), 0.25f,
-                                Controller.CalculateCoord(pos.z, 'z'));
+                            var finalAux = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
+                                controller.CalculateCoord(pos.z, 'z'));
 
                             if (Vector3.Distance(finalAux, contrarioPosition) == 0) continue;
 
@@ -72,13 +72,13 @@ public class EnemyController : PnjController
                     }
                 }
 
-                NavMeshAgent.SetDestination(middlePoint);
-                OtherPoint = finalPoint;
+                navMeshAgent.SetDestination(middlePoint);
+                otherPoint = finalPoint;
                 estado = GameController.EstadoPersonaje.Moviendo1;
                 break;
             
             case GameController.EstadoPersonaje.Moviendo1:
-                if (!NavMeshAgent.pathPending && NavMeshAgent.remainingDistance < 0.5f)
+                if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f)
                 {
                     estado = GameController.EstadoPersonaje.Moviendo2;
                     GoToOtherPoint();
@@ -86,11 +86,11 @@ public class EnemyController : PnjController
                 break;
             
             case GameController.EstadoPersonaje.Moviendo2:
-                if (!NavMeshAgent.pathPending && NavMeshAgent.remainingDistance < 0.5f) 
-                    estado = GameController.EstadoPersonaje.EscogiendoAtaque;
+                if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance < 0.5f) 
+                    estado = GameController.EstadoPersonaje.EscogiendoAccion;
                 break;
             
-            case GameController.EstadoPersonaje.EscogiendoAtaque:
+            case GameController.EstadoPersonaje.EscogiendoAccion:
                 var pnjPosition = GetPositon();
                 
                 for (var i = -areaAtaque; i <= areaAtaque; i++)
@@ -103,11 +103,11 @@ public class EnemyController : PnjController
 
                         var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
-                        if (Controller.DentroArea(pos) && Controller.PosibleAtaque(this, pos))
+                        if (controller.DentroArea(pos) && controller.PosibleAccion(this, pos, tipo != GameController.Tipo.Sanador))
                         {
                             transform.LookAt(pos);
                             estado = GameController.EstadoPersonaje.Atacando;
-                            Animator.SetTrigger("Aim");
+                            animator.SetTrigger("Aim");
                             return;
                         }
                     }

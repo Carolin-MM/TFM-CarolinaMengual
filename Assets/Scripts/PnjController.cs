@@ -12,38 +12,40 @@ public abstract class PnjController : MonoBehaviour
     public Image indicadorVida;
     public GameObject backgrounVida;
     public PnjController siguienteAtaque;
+    public GameController controller;
+    public GameObject prefabParticulas;
     
-    protected Animator Animator;
-    protected NavMeshAgent NavMeshAgent;
-    protected Vector3 OtherPoint;
-    protected GameController Controller;
+    protected Animator animator;
+    protected NavMeshAgent navMeshAgent;
+    protected Vector3 otherPoint;
     
     private Vector3 _lastPosition;
     private float _speed;
     
     public void Aim()
     {
+        if (tipo == GameController.Tipo.Sanador) return;
         arma.SetActive(!arma.activeSelf);
     }
 
     public void EndAtack()
     {
         estado = GameController.EstadoPersonaje.Parado;
-        Controller.SiguienteTurno();
+        controller.SiguienteTurno();
     }
 
     public void StartAtack()
     {
-        siguienteAtaque.RecibirDaño(daño);
+        if (tipo != GameController.Tipo.Sanador) siguienteAtaque.RecibirDaño(daño);
+        else siguienteAtaque.RecibirCura(daño);
         siguienteAtaque = null;
     }
 
     private void Start()
     {
-        Animator = GetComponent<Animator>();
-        NavMeshAgent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
         _lastPosition = transform.position;
-        Controller = GameObject.Find("Controller").GetComponent<GameController>();
     }
 
     protected virtual void Update()
@@ -51,21 +53,21 @@ public abstract class PnjController : MonoBehaviour
         var pos = transform.position;
         _speed = Mathf.Lerp(_speed, (pos - _lastPosition).magnitude / Time.deltaTime, 0.75f);
         _lastPosition = pos;
-        Animator.SetFloat("Velocity", _speed);
+        animator.SetFloat("Velocity", _speed);
     }
 
     protected void GoToOtherPoint()
     {
-        NavMeshAgent.SetDestination(OtherPoint);
-        OtherPoint = Vector3.zero;
+        navMeshAgent.SetDestination(otherPoint);
+        otherPoint = Vector3.zero;
     }
 
     public Vector3 GetPositon()
     {
         var position = transform.position;
 
-        return new Vector3(Controller.CalculateCoord(position.x, 'x'), 0.25f,
-            Controller.CalculateCoord(position.z, 'z'));
+        return new Vector3(controller.CalculateCoord(position.x, 'x'), 0.25f,
+            controller.CalculateCoord(position.z, 'z'));
     }
 
     private void RecibirDaño(int dañoRecibido)
@@ -74,16 +76,27 @@ public abstract class PnjController : MonoBehaviour
         if (aux < 0)
         {
             aux = 0;
-            Animator.SetBool("Die", true);
+            animator.SetBool("Die", true);
             backgrounVida.SetActive(false);
             estado = GameController.EstadoPersonaje.Muerto;
-            Controller.Muerte(this);
+            controller.Muerte(this);
         }
         else
         {
-            Animator.SetTrigger("Damage");
+            animator.SetTrigger("Damage");
         }
 
+        vidaActual = aux;
+        indicadorVida.fillAmount = (float) vidaActual / vidaMaxima;
+    }
+
+    private void RecibirCura(int cura)
+    {
+        var ins = Instantiate(prefabParticulas, transform.position, Quaternion.identity);
+        Destroy(ins, 2f);
+        
+        var aux = vidaActual + cura;
+        if (aux > vidaMaxima) vidaActual = vidaMaxima;
         vidaActual = aux;
         indicadorVida.fillAmount = (float) vidaActual / vidaMaxima;
     }

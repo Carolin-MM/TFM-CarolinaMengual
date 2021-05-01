@@ -2,14 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameController : MonoBehaviour
 {
     public GameObject cuadricula;
     public Transform areaParent;
-    public GameObject prefabCuadroArea, prefabCuadroAreaAtaque;
+    public GameObject prefabCuadroArea, prefabCuadroAreaAtaque, prefabCuadroAreaSanar;
     public PnjController[] aliados, enemigos;
     public MenuController menuController;
+    public Transform posicionesJugador;
+    public Distribucion distribucionNivel;
 
     private Vector3[] _verticesCuadricula;
     private int _numAliados, _numEnemigos;
@@ -22,7 +25,7 @@ public class GameController : MonoBehaviour
         Escogiendo,
         Moviendo1,
         Moviendo2,
-        EscogiendoAtaque,
+        EscogiendoAccion,
         Atacando,
         Muerto
     };
@@ -30,11 +33,20 @@ public class GameController : MonoBehaviour
     public enum Tipo
     {
         Jefe,
-        Medico,
+        Sanador,
         Distancia,
         Defensa,
         Velocista
     };
+    
+    [Serializable]
+    public struct Distribucion
+    {
+        public int sanadores;
+        public int distancia;
+        public int defensa;
+        public int velocistas;
+    }
 
     private void Start()
     {
@@ -49,6 +61,69 @@ public class GameController : MonoBehaviour
             trans.TransformPoint(verticeList[120])
         };
 
+        var lineRenderer = GetComponent<LineRenderer>();
+        var index = 0;
+        var aux = new List<PnjController>();
+        var prefab = Resources.Load<GameObject>("Jugador/Lider");
+        
+        // Instanciar líder
+        var child = posicionesJugador.GetChild(index++);
+        var ins = Instantiate(prefab, child.position, child.rotation);
+        var script = ins.GetComponent<PlayerController>();
+        script.controller = this;
+        script.lineRenderer = lineRenderer;
+        aux.Add(script);
+
+        prefab = Resources.Load<GameObject>("Jugador/Sanador");
+        for (var i = 0; i < distribucionNivel.sanadores; i++)
+        {
+            child = posicionesJugador.GetChild(index++);
+            ins = Instantiate(prefab, child.position, child.rotation);
+            script = ins.GetComponent<PlayerController>();
+            script.controller = this;
+            script.lineRenderer = lineRenderer;
+            aux.Add(script);
+        }
+
+        /*prefab = Resources.Load<GameObject>("Jugador/Distancia");
+        for (var i = 0; i < distribucionNivel.distancia; i++)
+        {
+            child = posicionesJugador.GetChild(index++);
+            ins = Instantiate(prefab, child.position, child.rotation);
+            script = ins.GetComponent<PlayerController>();
+            script.controller = this;
+            script.lineRenderer = lineRenderer;
+            aux.Add(script);
+        }
+
+        prefab = Resources.Load<GameObject>("Jugador/Defensa");
+        for (var i = 0; i < distribucionNivel.defensa; i++)
+        {
+            child = posicionesJugador.GetChild(index++);
+            ins = Instantiate(prefab, child.position, child.rotation);
+            script = ins.GetComponent<PlayerController>();
+            script.controller = this;
+            script.lineRenderer = lineRenderer;
+            aux.Add(script);
+        }*/
+
+        prefab = Resources.Load<GameObject>("Jugador/Velocista");
+        for (var i = 0; i < distribucionNivel.velocistas; i++)
+        {
+            child = posicionesJugador.GetChild(index++);
+            ins = Instantiate(prefab, child.position, child.rotation);
+            script = ins.GetComponent<PlayerController>();
+            script.controller = this;
+            script.lineRenderer = lineRenderer;
+            aux.Add(script);
+        }
+
+        aliados = aux.ToArray();
+        InicioNivel();
+    }
+
+    private void InicioNivel()
+    {
         _numAliados = aliados.Length;
         _numEnemigos = enemigos.Length;
 
@@ -127,9 +202,10 @@ public class GameController : MonoBehaviour
         foreach (Transform child in areaParent) Destroy(child.gameObject);
     }
 
-    public void MarcarAreaAtaque(int area, int inicioArea, Vector3 pnjPosition)
+    public void MarcarAreaAccion(int area, int inicioArea, Vector3 pnjPosition, bool ataque)
     {
         pnjPosition.y = 0.25f;
+        var prefabCuadro = ataque ? prefabCuadroAreaAtaque : prefabCuadroAreaSanar;
 
         for (var i = -area; i <= area; i++)
         {
@@ -142,14 +218,14 @@ public class GameController : MonoBehaviour
                 var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
                 if (DentroArea(pos))
-                    Instantiate(prefabCuadroAreaAtaque, pos, Quaternion.identity, areaParent);
+                    Instantiate(prefabCuadro, pos, Quaternion.identity, areaParent);
             }
         }
     }
 
-    public bool PosibleAtaque(PnjController controller, Vector3 position)
+    public bool PosibleAccion(PnjController controller, Vector3 position, bool ataque)
     {
-        var entities = controller is PlayerController ? enemigos : aliados;
+        var entities = controller is PlayerController ? ataque ? enemigos : aliados : ataque ? aliados : enemigos;
 
         foreach (var pnj in entities)
         {
