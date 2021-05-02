@@ -20,6 +20,10 @@ public class MenuController : MonoBehaviour
 
     public static void Exit()
     {
-        Application.Quit();
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }

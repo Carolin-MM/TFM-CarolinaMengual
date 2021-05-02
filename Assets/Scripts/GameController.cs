@@ -85,7 +85,7 @@ public class GameController : MonoBehaviour
             aux.Add(script);
         }
 
-        /*prefab = Resources.Load<GameObject>("Jugador/Distancia");
+        prefab = Resources.Load<GameObject>("Jugador/Distancia");
         for (var i = 0; i < distribucionNivel.distancia; i++)
         {
             child = posicionesJugador.GetChild(index++);
@@ -105,7 +105,7 @@ public class GameController : MonoBehaviour
             script.controller = this;
             script.lineRenderer = lineRenderer;
             aux.Add(script);
-        }*/
+        }
 
         prefab = Resources.Load<GameObject>("Jugador/Velocista");
         for (var i = 0; i < distribucionNivel.velocistas; i++)
