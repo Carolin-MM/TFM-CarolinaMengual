@@ -74,6 +74,7 @@ public class GameController : MonoBehaviour
         script.lineRenderer = lineRenderer;
         aux.Add(script);
 
+        // Instanciar sanadores
         prefab = Resources.Load<GameObject>("Jugador/Sanador");
         for (var i = 0; i < distribucionNivel.sanadores; i++)
         {
@@ -85,6 +86,7 @@ public class GameController : MonoBehaviour
             aux.Add(script);
         }
 
+        // Instanciar a distancia
         prefab = Resources.Load<GameObject>("Jugador/Distancia");
         for (var i = 0; i < distribucionNivel.distancia; i++)
         {
@@ -96,6 +98,7 @@ public class GameController : MonoBehaviour
             aux.Add(script);
         }
 
+        // Instanciar defensas
         prefab = Resources.Load<GameObject>("Jugador/Defensa");
         for (var i = 0; i < distribucionNivel.defensa; i++)
         {
@@ -107,6 +110,7 @@ public class GameController : MonoBehaviour
             aux.Add(script);
         }
 
+        // Instanciar velocistas
         prefab = Resources.Load<GameObject>("Jugador/Velocista");
         for (var i = 0; i < distribucionNivel.velocistas; i++)
         {
@@ -209,16 +213,17 @@ public class GameController : MonoBehaviour
 
         for (var i = -area; i <= area; i++)
         {
-            var extrem = area - Math.Abs(i);
+            var absI = Math.Abs(i);
+            var extrem = area - absI;
 
             for (var j = -extrem; j <= extrem; j++)
             {
-                if (i == 0 && j == 0) continue;
+                var absJ = Math.Abs(j);
+                if ((absI == 0 && absJ == 0) || (absI <= inicioArea && absJ <= inicioArea && absI != absJ)) continue;
 
                 var pos = pnjPosition + new Vector3(i * 2, 0, j * 2);
 
-                if (DentroArea(pos))
-                    Instantiate(prefabCuadro, pos, Quaternion.identity, areaParent);
+                if (DentroArea(pos)) Instantiate(prefabCuadro, pos, Quaternion.identity, areaParent);
             }
         }
     }

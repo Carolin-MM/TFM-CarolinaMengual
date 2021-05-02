@@ -6,7 +6,7 @@ public abstract class PnjController : MonoBehaviour
 {
     public GameObject arma;
     public GameController.EstadoPersonaje estado = GameController.EstadoPersonaje.Parado;
-    public int areaMovimiento, areaAtaque;
+    public int areaMovimiento, areaAtaque, areaMinimaAtaque;
     public GameController.Tipo tipo;
     public int vidaMaxima, vidaActual, daño;
     public Image indicadorVida;

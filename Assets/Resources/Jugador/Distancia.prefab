@@ -378,6 +378,7 @@ MonoBehaviour:
   estado: 0
   areaMovimiento: 5
   areaAtaque: 5
+  areaMinimaAtaque: 1
   tipo: 2
   vidaMaxima: 7
   vidaActual: 7

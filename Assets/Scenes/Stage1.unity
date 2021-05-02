@@ -33018,10 +33018,10 @@ MonoBehaviour:
   menuController: {fileID: 1977634905}
   posicionesJugador: {fileID: 230319117}
   distribucionNivel:
-    sanadores: 1
+    sanadores: 2
     distancia: 2
-    defensa: 3
-    velocistas: 2
+    defensa: 0
+    velocistas: 0
 --- !u!4 &1738876218
 Transform:
   m_ObjectHideFlags: 0

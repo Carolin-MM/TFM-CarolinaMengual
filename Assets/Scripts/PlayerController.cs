@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class PlayerController : PnjController
 {
@@ -75,7 +76,8 @@ public class PlayerController : PnjController
                     lineRenderer.SetPosition(1, Vector3.zero);
                     lineRenderer.SetPosition(2, Vector3.zero);
                     controller.LimpiarArea();
-                    controller.MarcarAreaAccion(areaAtaque, 0, GetPositon(), tipo != GameController.Tipo.Sanador);
+                    controller.MarcarAreaAccion(areaAtaque, areaMinimaAtaque, GetPositon(),
+                        tipo != GameController.Tipo.Sanador);
                     estado = GameController.EstadoPersonaje.EscogiendoAccion;
                 }
 
@@ -107,9 +109,9 @@ public class PlayerController : PnjController
                 lineRenderer.SetPosition(1, middlePoint);
                 lineRenderer.SetPosition(2, finalPoint);
 
-                if (Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint) <=
-                    areaAtaque * 2 &&
-                    (controller.PosibleAccion(this, finalPoint, tipo != GameController.Tipo.Sanador) ||
+                var distance = Vector3.Distance(initialPoint, middlePoint) + Vector3.Distance(middlePoint, finalPoint);
+                if (distance <= areaAtaque * 2 && ((distance > areaMinimaAtaque * 2 &&
+                      controller.PosibleAccion(this, finalPoint, tipo != GameController.Tipo.Sanador)) ||
                      finalPoint == initialPoint))
                 {
                     if (Input.GetMouseButtonDown(0))

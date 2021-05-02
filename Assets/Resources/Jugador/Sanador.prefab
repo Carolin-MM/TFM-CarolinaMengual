@@ -340,6 +340,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!136 &6289726262853028895
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7353423455464187535}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 1.978601
+  m_Direction: 1
+  m_Center: {x: -0.00000011920932, y: 0.95, z: -0.057677545}
 --- !u!195 &947701234
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -378,10 +392,11 @@ MonoBehaviour:
   estado: 0
   areaMovimiento: 3
   areaAtaque: 2
+  areaMinimaAtaque: 0
   tipo: 1
   vidaMaxima: 7
   vidaActual: 7
-  "da\xF1o": 0
+  "da\xF1o": 3
   indicadorVida: {fileID: 1854402935}
   backgrounVida: {fileID: 2027938761}
   siguienteAtaque: {fileID: 0}
@@ -390,20 +405,6 @@ MonoBehaviour:
   lineRenderer: {fileID: 0}
   liniaFuera: {fileID: 2100000, guid: 3efd83fa942087f4db13fa4f7107ab45, type: 2}
   liniaDentro: {fileID: 2100000, guid: 2f18b2fe4ec936b4a9c634e764fa7be2, type: 2}
---- !u!136 &6289726262853028895
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7353423455464187535}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1.978601
-  m_Direction: 1
-  m_Center: {x: -0.00000011920932, y: 0.95, z: -0.057677545}
 --- !u!1001 &7353132695330363971
 PrefabInstance:
   m_ObjectHideFlags: 0
