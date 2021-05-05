@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour
     public enum EstadoPersonaje
     {
         Parado,
-        Escogiendo,
+        EscogiendoDestino,
         Moviendo1,
         Moviendo2,
         EscogiendoAccion,
@@ -267,12 +267,12 @@ public class GameController : MonoBehaviour
             if (pnj is PlayerController)
                 MarcarAreaMovimiento(pnj.areaMovimiento, pnj);
             
-            pnj.estado = EstadoPersonaje.Escogiendo;
+            pnj.estado = EstadoPersonaje.EscogiendoDestino;
             siguiente = true;
         } while (!siguiente);
     }
 
-    public PnjController ContrarioCercano(PnjController controller)
+    public PnjController ObjetivoCercano(PnjController controller)
     {
         var entities = controller is PlayerController ? enemigos : aliados;
         var position = controller.GetPositon();
@@ -286,6 +286,24 @@ public class GameController : MonoBehaviour
             var dis = Vector3.Distance(pnj.GetPositon(), position);
             if (dis > distance) continue;
             distance = dis;
+            aux = pnj;
+        }
+
+        return aux;
+    }
+
+    public PnjController ObjetivoCuracion(PnjController controller)
+    {
+        var entities = controller is PlayerController ? aliados : enemigos;
+        var vida = float.PositiveInfinity;
+        PnjController aux = null;
+
+        foreach (var pnj in entities)
+        {
+            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+
+            if (pnj.vidaActual > vida) continue;
+            vida = pnj.vidaActual;
             aux = pnj;
         }
 

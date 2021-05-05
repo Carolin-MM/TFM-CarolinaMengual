@@ -28,7 +28,7 @@ public abstract class PnjController : MonoBehaviour
         arma.SetActive(!arma.activeSelf);
     }
 
-    public void EndAtack()
+    protected void EndAtack()
     {
         estado = GameController.EstadoPersonaje.Parado;
         controller.SiguienteTurno();

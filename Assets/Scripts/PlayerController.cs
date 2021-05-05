@@ -18,7 +18,7 @@ public class PlayerController : PnjController
 
         switch (estado)
         {
-            case GameController.EstadoPersonaje.Escogiendo:
+            case GameController.EstadoPersonaje.EscogiendoDestino:
                 camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (!Physics.Raycast(camRay, out hit, Mathf.Infinity, LayerMask.GetMask("Suelo")))
                     return;
