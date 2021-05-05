@@ -30293,8 +30293,8 @@ RectTransform:
   m_Father: {fileID: 1977634909}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.027583338, y: 0.79814816}
-  m_AnchorMax: {x: 0.22370833, y: 0.9528149}
+  m_AnchorMin: {x: 0.027583338, y: 0.8}
+  m_AnchorMax: {x: 0.19660418, y: 0.9528149}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -33255,6 +33255,8 @@ MonoBehaviour:
     distancia: 2
     defensa: 0
     velocistas: 3
+  multiplicadorTipoFavor: 1.5
+  multiplicadorTipoContra: 0.5
 --- !u!4 &1738876218
 Transform:
   m_ObjectHideFlags: 0

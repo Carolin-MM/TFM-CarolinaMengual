@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -37,8 +38,13 @@ public abstract class PnjController : MonoBehaviour
 
     public void StartAtack()
     {
-        if (tipo != GameController.Tipo.Sanador) siguienteAtaque.RecibirDaño(daño);
+        if (tipo != GameController.Tipo.Sanador)
+        {
+            var multi = controller.GetMultiplicador(tipo, siguienteAtaque.tipo);
+            siguienteAtaque.RecibirDaño(daño * multi);
+        }
         else siguienteAtaque.RecibirCura(daño);
+
         siguienteAtaque = null;
     }
 
@@ -71,7 +77,7 @@ public abstract class PnjController : MonoBehaviour
             controller.CalculateCoord(position.z, 'z'));
     }
 
-    private void RecibirDaño(int dañoRecibido)
+    private void RecibirDaño(float dañoRecibido)
     {
         var aux = vidaActual - dañoRecibido;
         if (aux < 0)
@@ -87,7 +93,7 @@ public abstract class PnjController : MonoBehaviour
             animator.SetTrigger("Damage");
         }
 
-        vidaActual = aux;
+        vidaActual = Convert.ToInt32(aux);
         indicadorVida.fillAmount = (float) vidaActual / vidaMaxima;
     }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +12,7 @@ public class GameController : MonoBehaviour
     public MenuController menuController;
     public Transform posicionesJugador;
     public Distribucion distribucionNivel;
+    public float multiplicadorTipoFavor = 1.5f, multiplicadorTipoContra = 0.5f;
 
     private Vector3[] _verticesCuadricula;
     private int _numAliados, _numEnemigos;
@@ -308,5 +308,38 @@ public class GameController : MonoBehaviour
         }
 
         return aux;
+    }
+
+    public float GetMultiplicador(Tipo tipoAtacante, Tipo tipoObjetivo)
+    {
+        switch (tipoAtacante)
+        {
+            case Tipo.Jefe:
+                return multiplicadorTipoFavor;
+            
+            case Tipo.Distancia:
+                if (tipoObjetivo == Tipo.Defensa) 
+                    return multiplicadorTipoFavor;
+                else if (tipoObjetivo == Tipo.Velocista) 
+                    return multiplicadorTipoContra;
+                break;
+            
+            case Tipo.Defensa:
+                if (tipoObjetivo == Tipo.Velocista) 
+                    return multiplicadorTipoFavor;
+                else if (tipoObjetivo == Tipo.Distancia) 
+                    return multiplicadorTipoContra;
+                break;
+            
+            case Tipo.Velocista:
+                if (tipoObjetivo == Tipo.Distancia) 
+                    return multiplicadorTipoFavor;
+                else if (tipoObjetivo == Tipo.Defensa) 
+                    return multiplicadorTipoContra;
+                break;
+            
+        }
+        
+        return 1;
     }
 }
