@@ -119,7 +119,6 @@ public class PlayerController : PnjController
                         lineRenderer.SetPosition(0, Vector3.zero);
                         lineRenderer.SetPosition(1, Vector3.zero);
                         lineRenderer.SetPosition(2, Vector3.zero);
-                        controller.LimpiarArea();
 
                         if (finalPoint == initialPoint) EndAtack();
                         else

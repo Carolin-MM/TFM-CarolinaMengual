@@ -300,7 +300,7 @@ public class GameController : MonoBehaviour
 
         foreach (var pnj in entities)
         {
-            if (pnj.estado == EstadoPersonaje.Muerto) continue;
+            if (pnj.estado == EstadoPersonaje.Muerto || pnj == controller) continue;
 
             if (pnj.vidaActual > vida) continue;
             vida = pnj.vidaActual;

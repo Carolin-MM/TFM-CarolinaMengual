@@ -30,6 +30,7 @@ public abstract class PnjController : MonoBehaviour
 
     protected void EndAtack()
     {
+        controller.LimpiarArea();
         estado = GameController.EstadoPersonaje.Parado;
         controller.SiguienteTurno();
     }
