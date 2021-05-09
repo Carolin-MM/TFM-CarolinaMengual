@@ -60,7 +60,10 @@ public class GameController : MonoBehaviour
             trans.TransformPoint(verticeList[110]),
             trans.TransformPoint(verticeList[120])
         };
+    }
 
+    public void InstanciarAliados()
+    {
         var lineRenderer = GetComponent<LineRenderer>();
         var index = 0;
         var aux = new List<PnjController>();
