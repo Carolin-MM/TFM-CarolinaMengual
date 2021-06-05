@@ -20,6 +20,8 @@ public class EnemyController : PnjController
                 _objetivo = tipo == GameController.Tipo.Sanador
                     ? controller.ObjetivoCuracion(this)
                     : controller.ObjetivoCercano(this);
+                
+                if (_objetivo == null) EndAtack();
 
                 var distance = float.PositiveInfinity;
                 var distanciaCamino = float.PositiveInfinity;
@@ -43,10 +45,12 @@ public class EnemyController : PnjController
                         var finalAux = new Vector3(controller.CalculateCoord(pos.x, 'x'), 0.25f,
                             controller.CalculateCoord(pos.z, 'z'));
 
-                        var distAux = Math.Abs(objetivoPosition.x - finalAux.x) +
-                                      Math.Abs(objetivoPosition.z - finalAux.z);
+                        var attackMiddlePoint = new Vector3(finalAux.x, 0.25f, objetivoPosition.z);
 
-                        if (distAux <= areaMinimaAtaque) continue;
+                        var distAux = Vector3.Distance(finalAux, attackMiddlePoint)
+                                      + Vector3.Distance(attackMiddlePoint, objetivoPosition);
+
+                        if (distAux <= areaMinimaAtaque * 2) continue;
 
                         var distAuxCamino = Vector3.Distance(initialPoint, middleAux) +
                                             Vector3.Distance(middlePoint, finalAux);
