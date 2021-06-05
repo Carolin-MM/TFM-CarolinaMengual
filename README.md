@@ -1,3 +1,3 @@
 # TFM - Carolina Mengual
 
-L'ejectubale del joc es troba a la carpeta Build.
+Repositori d'un Treball de Fi de Màster del Màster Universitari en Disseny i Programació de Vídeojocs de la Universitat Oberta de Catalunya.
